@@ -141,3 +141,22 @@ Feel free to submit issues, feature requests, or pull requests to improve this e
 ## Support
 
 If you encounter any issues or have questions, please open an issue on the project repository.
+
+## 📸 Screenshots
+
+### 🔐 Preview 1
+![Command Pallete](Screenshot/1.png)
+
+---
+
+
+
+
+### 💽 Preview 2  
+![Extension](Screenshot/2.png)
+
+
+
+
+### 💽 Preview 2  
+![Extension](Screenshot/3.png)
