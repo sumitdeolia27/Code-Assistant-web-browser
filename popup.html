@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Assistant</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        
+        <div id="loginModal" style="
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            background: rgba(0,0,0,0.35); 
+            top:0; left:0; width:100vw; height:100vh; 
+            display: flex; align-items:center; justify-content:center;
+            transition: background 0.3s;">
+            <div style="
+                background: #fff; 
+                padding: 2.5em 2em 2em 2em; 
+                border-radius: 12px; 
+                min-width: 320px; 
+                max-width: 90vw; 
+                box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+                animation: modalFadeIn 0.4s;">
+                <h2 style="margin-bottom: 0.5em; color: #2d3748; font-weight: 700; letter-spacing: 1px;">🔒 Login</h2>
+                <p style="margin-top: 0; margin-bottom: 1.5em; color: #4a5568; font-size: 1em;">Sign in to continue</p>
+                <div id="loginStepEmail">
+                    <label for="loginEmail" style="font-size: 0.97em; color: #2d3748;">Email address</label>
+                    <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email"
+                        style="width: 100%; padding: 0.6em; margin-top: 0.3em; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1em;"/>
+                    <button id="sendOtpBtn" style="
+                        margin-top: 1.2em; width: 100%; 
+                        background: #2563eb; color: #fff; border: none; 
+                        padding: 0.7em 0; border-radius: 6px; font-size: 1em; font-weight: 600; 
+                        cursor: pointer; transition: background 0.2s;">
+                        Send OTP
+                    </button>
+                </div>
+                <div id="loginStepOtp" style="display:none;">
+                    <label for="loginOtp" style="font-size: 0.97em; color: #2d3748;">Enter OTP</label>
+                    <input type="text" id="loginOtp" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code"
+                        style="width: 100%; padding: 0.6em; margin-top: 0.3em; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1em; letter-spacing: 0.2em;"/>
+                    <button id="verifyOtpBtn" style="
+                        margin-top: 1.2em; width: 100%; 
+                        background: #059669; color: #fff; border: none; 
+                        padding: 0.7em 0; border-radius: 6px; font-size: 1em; font-weight: 600; 
+                        cursor: pointer; transition: background 0.2s;">
+                        Verify OTP
+                    </button>
+                    <button id="backToEmailBtn" style="
+                        margin-top: 0.7em; width: 100%; 
+                        background: transparent; color: #2563eb; border: none; 
+                        font-size: 0.97em; cursor: pointer; text-decoration: underline;">
+                        Change email
+                    </button>
+                </div>
+                <div id="loginError" style="color: #dc2626; margin-top: 1em; min-height: 1.5em; font-size: 0.97em;"></div>
+            </div>
+        </div>
+
+        <header class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>🤖 Code Assistant</h1>
+                    <p>AI-powered code analysis</p>
+                </div>
+                <div style="position: relative;">
+                    <button id="settingsBtn" class="settings-btn" title="Settings">⚙️</button>
+                    <div id="settingsMenu" style="
+                        display: none;
+                        position: absolute;
+                        top: 48px;
+                        right: 16px;
+                        background: #fff;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                        min-width: 160px;
+                        z-index: 2000;
+                        padding: 0.5em 0;
+                    ">
+                        <button id="logoutBtn" style="
+                            width: 100%; 
+                            background: none; 
+                            border: none; 
+                            color: #dc2626; 
+                            font-size: 1em; 
+                            padding: 0.7em 1.2em; 
+                            text-align: left; 
+                            cursor: pointer;
+                        ">Logout</button>
+                        
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="hints">Hints</button>
+            <button class="tab-button" data-tab="suggestions">Suggestions</button>
+            <button class="tab-button" data-tab="explanation">Explanation</button>
+            <button class="tab-button" data-tab="cleancode">Clean Code</button>
+            <button class="tab-button" data-tab="solutions">Solutions</button>
+        </div>
+
+        <div class="tab-content">
+            <div id="hints" class="tab-panel active">
+                <div class="input-section">
+                    <div class="textarea-container">
+                        <textarea id="hintsInput" placeholder="Paste your code here or select text on webpage and right-click 'Analyze Code'..."></textarea>
+                        <button id="clearHintsBtn" class="clear-btn" title="Clear text">🗑️</button>
+                        <div id="hintsCounter" class="char-counter">0 characters</div>
+                    </div>
+                    <button id="hintsBtn" class="analyze-btn">💡 Get Hints</button>
+                </div>
+                <div id="hintsResult" class="result-section"></div>
+            </div>
+
+            <div id="suggestions" class="tab-panel">
+                <div class="input-section">
+                    <div class="textarea-container">
+                        <textarea id="suggestionsInput" placeholder="Paste code to get improvement suggestions..."></textarea>
+                        <button id="clearSuggestionsBtn" class="clear-btn" title="Clear text">🗑️</button>
+                    </div>
+                    <button id="suggestionsBtn" class="analyze-btn">💭 Get Suggestions</button>
+                </div>
+                <div id="suggestionsResult" class="result-section"></div>
+            </div>
+
+            <div id="explanation" class="tab-panel">
+                <div class="input-section">
+                    <div class="textarea-container">
+                        <textarea id="explanationInput" placeholder="Paste code to get detailed explanation..."></textarea>
+                        <button id="clearExplanationBtn" class="clear-btn" title="Clear text">🗑️</button>
+                    </div>
+                    <button id="explanationBtn" class="analyze-btn">📚 Explain Code</button>
+                </div>
+                <div id="explanationResult" class="result-section"></div>
+            </div>
+
+            <div id="cleancode" class="tab-panel">
+                <div class="input-section">
+                    <div class="textarea-container">
+                        <textarea id="cleancodeInput" placeholder="Paste code to get clean code suggestions..."></textarea>
+                        <button id="clearCleancodeBtn" class="clear-btn" title="Clear text">🗑️</button>
+                    </div>
+                    <button id="cleancodeBtn" class="analyze-btn">✨ Clean Code</button>
+                </div>
+                <div id="cleancodeResult" class="result-section"></div>
+            </div>
+
+            <div id="solutions" class="tab-panel">
+                <div class="input-section">
+                    <div class="textarea-container">
+                        <textarea id="solutionsInput" placeholder="Paste code to get solution approaches..."></textarea>
+                        <button id="clearSolutionsBtn" class="clear-btn" title="Clear text">🗑️</button>
+                    </div>
+                    <button id="solutionsBtn" class="analyze-btn">🎯 Get Solutions</button>
+                </div>
+                <div id="solutionsResult" class="result-section"></div>
+            </div>
+
+            <div id="errorfixing" class="tab-panel">
+                <div class="input-section">
+                    <div class="textarea-container">
+                        <textarea id="errorfixingInput" placeholder="Paste code with errors to get debugging help..."></textarea>
+                        <button id="clearErrorfixingBtn" class="clear-btn" title="Clear text">🗑️</button>
+                    </div>
+                    <button id="errorfixingBtn" class="analyze-btn">🐛 Fix Errors</button>
+                </div>
+                <div id="errorfixingResult" class="result-section"></div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p style="color: #2d3748;">Analyzing code...</p>
+        </div>
+
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
+<style>
+@keyframes modalFadeIn {
+    from { transform: translateY(40px) scale(0.98); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+</style>
